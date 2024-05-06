@@ -24,9 +24,12 @@ Since password file is not uploaded just click submit with blank text to complet
 
 Challenge link [here](https://www.hackthissite.org/missions/basic/3/)
 
+![Mission 3](files/3src_code.png)
 Looking at the source code near form field, there is a hidden file input with value *password.php*. Opening password.php from browser gives away the password.
 
-Password = **aaf85ae6**
+![Mission 3](files/3solved.png)
+
+Password = **984df9c0**
 
 ----
 
@@ -34,7 +37,9 @@ Password = **aaf85ae6**
 
 Challenge link [here](https://www.hackthissite.org/missions/basic/4/)
 
+![Mission 4](files/4src_code.png)
 In the hidden input, email form field just change the value of the default email to your email. Then the remainder of the password has been sent to your email. 
+![Mission 4](files/4solved.png)
 
 Password = **252903de**
 
@@ -54,35 +59,41 @@ Password = **fae5169e**
 
 Challenge link [here](https://www.hackthissite.org/missions/basic/6/)
 
-I did some hit and trials to understand the encryption method.
+This one requires some simple cryptography knowledge! But have no fear, it is simpler than you might at first think if you are new to this.
 
-| Input    | Encrypted |
-|--------  |-------    |
-| password | pbuv{txk  |
-| flapjack | fmcsnfir  |
-| puzzlers | pv|}pjxz  |
+![Mission 6](files/6ch.png)
 
-The encryption is simple.
+We are given multiple points of information:
 
-Let x and y be the letters of original and encrypted message at position n respectively. Then,
+The ability to encrypt a plain-text string into encrypted form
+The encryped version of Sam's password: e72hj><8 (previously obtained through an unspecified method)
+Therefore in order to solve this challenge, we need to decrypt Sam's password back into its original version. We can do that by working out how the encryption process works.
 
-y = chr(ord(x)+n)
+Since we do not have access to the encryption code, we'll have to look for patterns in known pairs of encrypted and unencryped values. We can do that by entering random strings into the first box, and recording what the resulting encryped value is for each.
 
-Python helps me to recover the original password.
+A few things to try:
 
-```python
+Repeated characters: aaaaa
+Repeated patterns: abcabc
+Counting: 12345
+Alphabet: abcdef
+You might notice something interesting through doing this.
 
-s = '432i:7g9'
-d = ''
-for n in range(len(s)) :
-	d += chr(ord(s[n])-n)
-print d
+For example, aaaaa becomes abcde - this tells us that the same character is encryped differently based on position in the string, so it's not a simple cypher where one thing always matches something else. It also shows us that the difference is sequential!
 
-```
+If you next try 12345 you will get 13579. This isn't sequential, but gives us more data to work with.
 
-Password = **420f62a2**
+So how do you handle the special characters like > and <? Consider where you can find a list of these characters together - letters, numbers, and symbols. They are all Unicode characters, and each Unicode character has a numerical designation!
 
-----
+Now, use what we've learned to solve the challenge. Take note that the first character does not change. The encryped version is identical to what you passed in. Every other character changes based on the position in the string.
+
+Our encryped password is: e72hj><8
+
+Let's separate that into string positions, starting at zero because the first one doesn't change. We can also determine the unicode decimal value for each character.
+
+![Mission 6](files/6solved.png)
+
+Try modifying the unicode value based on the position of the character in the string, and you'll get your answer 
 
 ### Mission 7
 
